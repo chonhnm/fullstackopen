@@ -1,0 +1,14 @@
+note over brower
+On submit, brower starts executing spa.js code
+that creates the note, render notes to display
+and finally post the note to server
+end note
+
+brower->server: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+
+note over server
+server saves the note posted from brower
+and respond with a message
+end note
+
+server-->brower: {"message":"note created"}
