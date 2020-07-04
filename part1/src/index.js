@@ -8,7 +8,6 @@ const Header = p => (
 )
 
 const Content = (p) => {
-  console.log(p)
   let parts = p.parts
   let i = 0
   return (
@@ -26,13 +25,17 @@ const Part = p => (
   </>
 )
 
-const Total = props => (
+const Total = p => {
+  let total = 0
+  p.parts.forEach(p => total += p.exercises)
+  return (
   <>
     <p>
-      Number of exercises {props.num}
+      Number of exercises {total}
     </p>
   </>
 )
+  }
 
 const App = () => {
   const course = 'Half Stack application development'
@@ -50,14 +53,12 @@ const App = () => {
       exercises: 14
     }
   ]
-  let total = 0
-  parts.forEach(p => total += p.exercises)
-
+  
   return (
     <>
       <Header course={course} />
       <Content parts={parts} />
-      <Total num={total} />
+      <Total parts={parts} />
     </>
   )
 }
