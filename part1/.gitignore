@@ -24,7 +24,6 @@ yarn-error.log*
 
 # rmv
 /public
-/src
 package.json
 README.md
 yarn.lock
