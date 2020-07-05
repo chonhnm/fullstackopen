@@ -9,7 +9,14 @@ const Button = ({ clickHandler, text }) => (
   </button>
 )
 
-const Statistic = ({ text, value }) => <p>{text} {value}</p>
+const Statistic = ({ text, value }) =>
+  (
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
+  )
+
 
 const Statistics = ({ stats, total }) => {
   if (total === 0) {
@@ -18,9 +25,13 @@ const Statistics = ({ stats, total }) => {
     let i = 0
     return (
       <>
-        {stats.map(stat =>
-          <Statistic text={stat.name} value={stat.value} key={i++} />
-        )}
+        <table>
+          <tbody>
+            {stats.map(stat =>
+              <Statistic text={stat.name} value={stat.value} key={i++} />
+            )}
+          </tbody>
+        </table>
       </>
     )
   }
@@ -48,7 +59,12 @@ const App = () => {
     {
       name: 'bad',
       value: bad
-    }, {
+    },
+    {
+      name: 'all',
+      value: totalClick
+    },
+    {
       name: 'average',
       value: average
     }, {
