@@ -9,6 +9,8 @@ const Button = ({ clickHandler, text }) => (
   </button>
 )
 
+const Statistic = ({ text, value }) => <p>{text} {value}</p>
+
 const Statistics = ({ stats, total }) => {
   if (total === 0) {
     return (<p>No feedback given</p>)
@@ -16,7 +18,9 @@ const Statistics = ({ stats, total }) => {
     let i = 0
     return (
       <>
-        {stats.map(stat => <p key={i++}>{stat.name} {stat.value}</p>)}
+        {stats.map(stat =>
+          <Statistic text={stat.name} value={stat.value} key={i++} />
+        )}
       </>
     )
   }
