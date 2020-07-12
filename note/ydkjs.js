@@ -1,6 +1,6 @@
 
 function hello(myName) {
-    console.log(`Hello, ${ myName }.`)
+    console.log(`Hello, ${myName}.`)
 }
 
 hello('Kyle')
@@ -14,7 +14,7 @@ function awesomeFunction(coolThings) {
     return coolThings;
 }
 
-var awesomeFunction = function(coolThings) {
+var awesomeFunction = function (coolThings) {
     return coolThings + '222'
 }
 
@@ -143,8 +143,8 @@ function BookM(bookDetails) {
 
 }
 
-function BlogPostM(title,author,pubDate,URL) {
-    var pub = PublicationM(title,author,pubDate);
+function BlogPostM(title, author, pubDate, URL) {
+    var pub = PublicationM(title, author, pubDate);
 
     var publicAPI = {
         print() {
@@ -199,16 +199,21 @@ assignment.call(anotherHomework);
 console.log('prototypes===========')
 
 var hw = {
-    topic : 'JS'
+    topic: 'JS'
 };
 var ahw = Object.create(hw);
 console.log("ahw:", ahw.topic);
 
 ///
 
-var appendixWork = function() {
+var appendixWork = function () {
     const dayS = 7 * 60 + 30;
     const dayE = 17 * 60 + 45;
+
+    function _range(start, end) {
+        return [...Array(end - start + 1).keys()].map(x => x + start);
+    }
+
     var publicApi = {
         scheduleMeeting(startTime, durationMinutes) {
             let t = startTime.split(":");
@@ -218,36 +223,92 @@ var appendixWork = function() {
         },
 
         range(start, end) {
+            start = Number(start) || 0;
             if (end == undefined) {
-                return e => {
-                    if (e < start) {
-                        return [];
-                    } else {
-                        return [...Array(e-start + 1).keys()].map(x=>x+start);
-                    }
-                }
+                return e => e < start ? [] : _range(start, e);
             } else {
-                return [...Array(end-start + 1).keys()].map(x=>x+start);
+                return _range(start, end);
             }
         },
 
+        slotMachine() {
+            function randMax(max) {
+                return Math.trunc(1E9 * Math.random()) % max;
+            }
 
+            reel = {
+                symbols: [
+                    "♠", "♥", "♦", "♣", "☺", "★", "☾", "☀"
+                ],
+                spin() {
+                    if (this.position == null) {
+                        this.position = randMax(
+                            this.symbols.length - 1
+                        );
+                    }
+                    this.position = (
+                        this.position + 100 + randMax(100)
+                    ) % this.symbols.length;
+                },
+                display() {
+                    if (this.position == null) {
+                        this.position = randMax(
+                            this.symbols.length - 1
+                        );
+                    }
+                    return this.symbols[this.position];
+                }
+            };
+
+            return {
+                reels: [
+                    // this slot machine needs 3 separate reels
+                    // hint: Object.create(..)
+                    Object.create(reel),
+                    Object.create(reel),
+                    Object.create(reel)
+                ],
+                spin() {
+                    this.reels.forEach(function spinReel(reel) {
+                        reel.spin();
+                    });
+                },
+                display() {
+                    let lines = [];
+                    for (let i = -1; i <= 1; i++) {
+                        let line = this.reels.map(reel => {
+                            let slot = Object.create(reel);
+                            slot.position = (reel.symbols.length + reel.position + i) % reel.symbols.length;
+                            return reel.display.call(slot);
+                        })
+                        lines.push(line.join(" | "));
+                    }
+                    return lines.join("\n");
+                }
+            }
+        }
     }
-
     return publicApi;
 }
 
 var solution = appendixWork();
-console.log(solution.scheduleMeeting("7:00",15));     // false
-console.log(solution.scheduleMeeting("07:15",30));    // false
-console.log(solution.scheduleMeeting("7:30",30));     // true
-console.log(solution.scheduleMeeting("11:30",60));    // true
-console.log(solution.scheduleMeeting("17:00",45));    // true
-console.log(solution.scheduleMeeting("17:30",30));    // false
-console.log(solution.scheduleMeeting("18:00",15));    // false
+console.log(solution.scheduleMeeting("7:00", 15));     // false
+console.log(solution.scheduleMeeting("07:15", 30));    // false
+console.log(solution.scheduleMeeting("7:30", 30));     // true
+console.log(solution.scheduleMeeting("11:30", 60));    // true
+console.log(solution.scheduleMeeting("17:00", 45));    // true
+console.log(solution.scheduleMeeting("17:30", 30));    // false
+console.log(solution.scheduleMeeting("18:00", 15));    // false
 console.log('===========');
 var range3 = solution.range(3);
 console.log(solution.range(1));
-console.log(solution.range(1,5));
+console.log(solution.range(1, 5));
 console.log(range3(5));
 console.log(range3(2));
+console.log(solution.range()(4));
+
+var slot = solution.slotMachine();
+slot.spin();
+console.log(slot.display());
+slot.spin();
+console.log(slot.display());
