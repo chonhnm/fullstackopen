@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom'
 import React from 'react'
-import App from './App'
+import App from './part2/PhoneBook/App'
 
 ReactDOM.render(<App />, document.getElementById('root'))
