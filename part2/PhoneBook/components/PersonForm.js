@@ -15,8 +15,12 @@ const PersonForm = ({ submitEvt, name, nameChange,
         </form>
     )
 
-const Persons = ({persons}) => (
-    <ul>{persons.map((p, i) => <li key={i}>{p.name} {p.number}</li>)}</ul>
+const Person = ({ p, deleteHandler }) => (
+    <li>
+        {p.name} {p.number}
+        <button onClick={deleteHandler}>delete</button>
+    </li>
+
 )
 
-export {PersonForm, Persons}
+export { PersonForm, Person }

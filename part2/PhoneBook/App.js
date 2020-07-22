@@ -1,18 +1,31 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
-import { PersonForm, Persons } from './components/PersonForm'
+import { PersonForm, Person } from './components/PersonForm'
+import personServer from './services/persons'
+
+
+const Notification = ({ message }) => {
+    if (message === null) {
+        return null
+    }
+    return (
+        <div className={message[0]}>
+            {message[1]}
+        </div>
+    )
+}
 
 const App = () => {
     const [persons, setPersons] = useState([])
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [filter, setFilter] = useState('')
+    const [message, setMessage] = useState(null)
 
     useEffect(() => {
-        axios
-            .get('http://localhost:3001/persons')
-            .then(resp => setPersons(resp.data))
+        personServer
+            .getAll()
+            .then(data => setPersons(data))
     }, [])
 
     const addPerson = (event) => {
@@ -23,17 +36,53 @@ const App = () => {
             alert('name or number input is empty')
             return
         }
-        if (persons.filter(p => p.name === trimName).length !== 0) {
-            alert(`${trimName} is already added to phonebook`)
-            return
-        }
         const personObj = {
             name: trimName,
             number: trimNumber
         }
-        setPersons(persons.concat(personObj))
-        setNewName('')
-        setNewNumber('')
+        const filterP = persons.filter(p => p.name === trimName)
+        if (filterP.length !== 0) {
+            const result = window.confirm(`${filterP[0].name} is already added to phonebook, replace the old number with a new one?`)
+            if (result) {
+                personServer
+                    .update(filterP[0].id, personObj)
+                    .then(data => {
+                        setPersons(persons.map(p => p.name === trimName ? data : p))
+                        setNewName('')
+                        setNewNumber('')
+                        setMessage(['message',`Updated ${data.name}`])
+                        setTimeout(() => setMessage(null), 3000)
+                    })
+                    .catch(error => {
+                        setPersons(persons.filter(p=>p.name !== trimName))
+                        setMessage(["error",`Information of ${trimName} has already been removed from server`])
+                        setTimeout(() => setMessage(null), 3000)
+                    })
+            }
+            return
+        }
+        personServer
+            .create(personObj)
+            .then(data => {
+                setPersons(persons.concat(data))
+                setNewName('')
+                setNewNumber('')
+                setMessage(['message',`Added ${data.name}`])
+                setTimeout(() => setMessage(null), 3000)
+            })
+    }
+
+    const deletePerson = id => {
+        const delPerson = persons.filter(p => p.id === id)[0]
+        const result = window.confirm(`Delete ${delPerson.name}?`)
+        if (!result) return;
+        personServer
+            .del(id)
+            .then(data => {
+                setPersons(persons.filter(p => p.id !== id))
+                setMessage(`Deleted ${delPerson.name}`)
+                setTimeout(() => setMessage(''), 2000)
+            })
     }
 
     const handleNameChange = (evt) => {
@@ -55,13 +104,17 @@ const App = () => {
     return (
         <div>
             <h2>Phonebook</h2>
+            <Notification message={message} />
             <Filter val={filter} evt={handleFilterChange} />
             <h2>Add a new</h2>
             <PersonForm submitEvt={addPerson} name={newName}
                 nameChange={handleNameChange} number={newNumber}
                 numberChange={handleNumberChange} />
             <h2>Numbers</h2>
-            <Persons persons={filterPersons} />
+            <ul>
+                {filterPersons.map((p, i) =>
+                    <Person p={p} key={i} deleteHandler={() => deletePerson(p.id)} />)}
+            </ul>
         </div>
     )
 }
