@@ -1,9 +1,23 @@
-//const http = require('http')
 const express = require('express')
-const { response } = require('express')
+const morgan = require('morgan')
 const app = express()
 
+const requestLogger = (req, res, next) => {
+  console.log('Method', req.method)
+  console.log('Path', req.path)
+  console.log('Body', req.body)
+  next()
+}
+
+morgan.token('body', (req, res) => {
+  return JSON.stringify(req.body)
+})
+
 app.use(express.json())
+// app.use(requestLogger)
+// app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
 
 let notes = [
   {
@@ -25,11 +39,6 @@ let notes = [
     important: true
   }
 ]
-
-// const app = http.createServer((request, response) => {
-//   response.writeHead(200, { 'Content-Type': 'application/json' })
-//   response.end(JSON.stringify(notes))
-// })
 
 app.get('/', (req, res) => {
   res.send('<h1>hello world!</h1>')
@@ -81,6 +90,11 @@ app.post('/api/notes', (req, res) => {
   notes = notes.concat(note)
   res.json(note)
 })
+
+const unknownEndPoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndPoint)
 
 const port = 3001
 app.listen(port, () => {
